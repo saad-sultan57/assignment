@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #0a69ed;
+        }
+
+        .start-screen,
+        .score-container {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button {
+            border: none;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #start-button,
+        #restart {
+            font-size: 1.3em;
+            padding: 0.5em 1.8em;
+            border-radius: 0.2em;
+        }
+
+        #restart {
+            margin-top: 0.9em;
+        }
+
+        #wrapper {
+            position: absolute;
+            transform: translateX(-50%);
+            top: 20px;
+            left: 50%;
+            width: 90%;
+            max-width: 37.5em;
+        }
+
+        #display-container {
+            position: relative;
+            background-color: #ffffff;
+            padding: 3.1em 1.8em;
+            width: 100%;
+            margin: 0 auto;
+            border-radius: 0.6em;
+            box-shadow: 0 20px 45px rgba(0, 24, 56, 0.15);
+        }
+
+        a {
+            display: block;
+            background-color: #ffffff;
+            position: relative;
+            margin-top: 1em;
+            text-align: center;
+            text-decoration: none;
+            color: #0a69ed;
+            font-size: 1.4em;
+            font-weight: 600;
+            padding: 1em 0;
+            border-radius: 0.4em;
+            box-shadow: 0 20px 45px rgba(0, 24, 56, 0.15);
+        }
+
+        .header {
+            margin-bottom: 1.8em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 0.6em;
+            border-bottom: 0.1em solid #c0bfd2;
+        }
+
+        .timer-div {
+            background-color: #e1f5fe;
+            width: 7.5em;
+            border-radius: 1.8em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.7em 1.8em;
+        }
+
+        .question {
+            margin-bottom: 1.25em;
+            font-weight: 500;
+        }
+
+        .option-div {
+            font-size: 0.9em;
+            width: 100%;
+            padding: 1em;
+            margin: 0.3em 0;
+            text-align: left;
+            outline: none;
+            background: transparent;
+            border: 1px solid #c0bfd2;
+            border-radius: 0.3em;
+        }
+
+        .option-div:disabled {
+            color: #0b012d;
+            cursor: not-allowed;
+        }
+
+        .btn-container {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.5em;
+        }
+
+        #next-button {
+            font-size: 1em;
+            background-color: #0a69ed;
+            color: #ffffff;
+            padding: 0.7em 1.8em;
+            border-radius: 0.3em;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .correct {
+            background-color: #e7f6d5;
+            color: #689f38;
+            border-color: #689f38;
+        }
+
+        .inCorrect {
+            background-color: #ffdde0;
+            color: #d32f2f;
+            border-color: #d32f2f;
+        }
+
+        #user-score {
+            font-size: 1.5em;
+            color: #ffffff;
+        }
+
+        i.fab {
+            color: #ff0000;
+        }
+
+        @media screen and (max-width: 600px) {
+            body {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="start-screen">
+        <button id="start-button">Start</button>
+    </div>
+    <div id="wrapper">
+        <div id="display-container">
+            <div class="header">
+                <div class="number-of-count">
+                    <span class="number-of-question"></span>
+                </div>
+                <div class="timer-div">
+                    <img src="https://svgshare.com/i/iRM.svg" />
+                    <span class="time-left"></span>
+                </div>
+            </div>
+            <div id="container">
+                <!-- Question and options are displayed here -->
+            </div>
+            <div class="btn-container">
+                <button id="next-button">Next</button>
+            </div>
+        </div>
+
+    </div>
+    <div class="score-container hide">
+        <div id="user-score"></div>
+        <button id="restart">Restart</button>
+    </div>
+
+
+    <script>
+        // References
+        const quizdisplay = document.getElementById("display");
+        let timeLeft = document.querySelector(".time-left");
+        let quizContainer = document.getElementById("container");
+        let nextBtn = document.getElementById("next-button");
+        let countOfQuestion = document.querySelector(".number-of-question");
+        let wrapper = document.getElementById("wrapper");
+        let displayContainer = document.getElementById("display-container");
+        let scoreContainer = document.querySelector(".score-container");
+        let restart = document.getElementById("restart");
+        let userScore = document.getElementById("user-score");
+        let startScreen = document.querySelector(".start-screen");
+        let startButton = document.getElementById("start-button");
+        let questionCount;
+        let scoreCount = 0;
+        let count = 11;
+        let countdown;
+
+        //Question and Options array
+        // Add questions, options and correct option in below format
+        const quizArray = [
+            {
+                id: "0",
+                question: "For every one person, there are 1.6 million ____",
+                options: ["Websites", "Grain Of Sands", "Ants", "Rodents"],
+                correct: "Ants"
+            },
+            {
+                id: "1",
+                question: "Which is the only continent in the world without a desert?",
+                options: ["North America", "Asia", "Africa", "Europe"],
+                correct: "Europe"
+            },
+            {
+                id: "2",
+                question: " Who invented Computer?",
+                options: ["Charles Babbage", "Henry Luce", "Henry Babbage", "Charles Luce"],
+                correct: "Charles Babbage"
+            }
+        ];
+        // restart game
+        restart.addEventListener("click", () => {
+            inital(); //call initial function
+            wrapper.classList.remove("hide");
+            scoreContainer.classList.add("hide");
+        });
+        // Next button
+        nextBtn.addEventListener(
+            "click",
+            (displayNext = () => {
+                //increment questionCount
+                questionCount += 1;
+                //if last question
+                if (questionCount == quizArray.length) {
+                    //hide question container and display score
+                    wrapper.classList.add("hide");
+                    scoreContainer.classList.remove("hide");
+                    // user score
+                    userScore.innerHTML =
+                        "Your score is " + scoreCount + " out of " + questionCount;
+                } else {
+                    //display questionCount
+                    countOfQuestion.innerHTML =
+                        questionCount + 1 + " of " + quizArray.length + " Question";
+                    //display Quiz
+                    quizDisplay(questionCount);
+                    //count=11 (so that it starts with 10)
+                    count = 11;
+                    //clear interval for next question
+                    clearInterval(countdown);
+                    //display timer (start countdown)
+                    timerDisplay();
+                }
+            })
+        );
+        // Timer
+        const timerDisplay = () => {
+            countdown = setInterval(() => {
+                count--;
+                timeLeft.innerHTML = `${count}s`;
+                if (count == 0) {
+                    //when countdown reaches 0 clearInterval and go to next question
+                    clearInterval(countdown);
+                    displayNext();
+                }
+            }, 1000);
+        };
+        //display quiz
+        const quizDisplay = (questionCount) => {
+            let quizCards = document.querySelectorAll(".container_mid");
+            //hide other cards
+            quizCards.forEach((card) => {
+                card.classList.add("hide");
+            });
+            //display current question card
+            quizCards[questionCount].classList.remove("hide");
+        };
+        // Quiz creation
+        function quizCreator() {
+            //randomly sort questions
+            quizArray.sort(() => Math.random() - 0.5);
+            //generate quiz
+            for (let i of quizArray) {
+                //randomly sort options
+                i.options.sort(() => Math.random() - 0.5);
+                //quiz card creation
+                let div = document.createElement("div");
+                div.classList.add("container_mid", "hide");
+                //question number
+                countOfQuestion.innerHTML = 1 + " of " + quizArray.length + " Question";
+                //question
+                let question_DIV = document.createElement("p");
+                question_DIV.classList.add("question");
+                question_DIV.innerHTML = i.question;
+                div.appendChild(question_DIV);
+                //options
+                div.innerHTML += `
+<button class="option-div" onclick="checker(this)">${i.options[0]}</button>
+<button class="option-div" onclick="checker(this)">${i.options[1]}</button>
+<button class="option-div" onclick="checker(this)">${i.options[2]}</button>
+<button class="option-div" onclick="checker(this)">${i.options[3]}</button>
+
+`;
+                quizContainer.appendChild(div);
+            }
+        }
+        // Check option is correct or not
+        function checker(userOption) {
+            let userSolution = userOption.innerText;
+            let question = document.getElementsByClassName("container_mid")[questionCount];
+            let options = question.querySelectorAll(".option-div");
+            //if user's clicked anaswer==correct option stored in object
+            if (userSolution === quizArray[questionCount].correct) {
+                //green background and score increment
+                userOption.classList.add("correct");
+                scoreCount++;
+            } else {
+                //red background
+                userOption.classList.add("inCorrect");
+                //for marking green(correct)
+                options.forEach((element) => {
+                    if (element.innerText == quizArray[questionCount].correct) {
+                        element.classList.add("correct");
+                    }
+                });
+            }
+            //clear interval(stop timer)
+            clearInterval(countdown);
+            //disabled all options
+            options.forEach((element) => {
+                element.disabled = true;
+            });
+        }
+        //initial setup
+        function inital() {
+            quizContainer.innerHTML = "";
+            questionCount = 0;
+            scoreCount = 0;
+            clearInterval(countdown);
+            count = 11;
+            timerDisplay();
+            quizCreator();
+            quizDisplay(questionCount);
+        }
+        // when user click on start button
+        startButton.addEventListener("click", () => {
+            startScreen.classList.add("hide");
+            wrapper.classList.remove("hide");
+            inital();
+        });
+        //hide quiz and display start screen
+        window.onload = () => {
+            startScreen.classList.remove("hide");
+            wrapper.classList.add("hide");
+        };
+
+    </script>
+</body>
+
+</html>
