@@ -583,3 +583,24 @@ footer .fmenus li a {
 .quiz-app .results span.bad {
     color: #c0392b;
 }
+
+
+/* Scroll to top */
+.scroll-to-top {
+    @include display-flex;
+
+    position: fixed;
+    bottom: 30px;
+    right: 25px;
+
+    width: 30px;
+    height: 30px;
+
+    color: white;
+    background-color: #5161CE;
+
+    border: none;
+    border-radius: 50px;
+
+    cursor: pointer;
+}

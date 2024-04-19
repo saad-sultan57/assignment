@@ -284,3 +284,21 @@ function countdown(duration, count) {
     }, 1000);
   }
 }
+
+function ScrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+}
+
+// Add event listener to window's scroll event
+window.addEventListener("scroll", function () {
+  var scrollToTopBtn = document.querySelector(".scroll-to-top");
+  // If user has scrolled to the top, hide the button; otherwise, show it
+  if (window.scrollY === 0) {
+    scrollToTopBtn.style.display = "none";
+  } else {
+    scrollToTopBtn.style.display = "block";
+  }
+});
